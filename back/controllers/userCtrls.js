@@ -32,6 +32,8 @@ const userCtrl = {
   },
 };
 
-const createAccessToken = (user) => {};
+const createAccessToken = (user) => {
+  console.log(user);
+};
 
 module.exports = userCtrl;
