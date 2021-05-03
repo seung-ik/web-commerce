@@ -6,13 +6,9 @@ const userCtrl = {
   register: async (req, res) => {
     try {
       const { name, email, password } = req.body;
-
       const user = await Users.findOne({ email: email });
-
       if (user) return res.status(400).json({ msg: "The email already exist" });
-
       if (password.length < 6) return res.status(400).json({ msg: "Password is at least 6 chractors" });
-
       //paswword encryption
       const passwordHash = await bcrypt.hash(password, 10);
       const newUser = new Users({
@@ -20,12 +16,31 @@ const userCtrl = {
         email,
         password: passwordHash,
       });
-
       await newUser.save();
-
       // create Access token
+      const accessToken = createAccessToken({ id: newUser._id });
+      const refreshToken = createRefreshToken({ id: newUser._id });
+      console.log(accessToken);
+      console.log(refreshToken);
 
-      res.json({ msg: "Register Success" });
+      res.cookie("refreshtoken", refreshToken, {
+        httpOnly: true,
+        path: "/user/refresh_token",
+      });
+      res.json({ accessToken });
+    } catch (err) {
+      return res.status(500).json({ msg: err.message });
+    }
+  },
+  refreshToken: (req, res) => {
+    try {
+      const rf_token = req.cookies.refreshtoken;
+      if (!rf_token) return res.status(400).json({ msg: "Please Login or Register" });
+      jwt.verify(rf_token, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
+        if (err) return res.status(400).json({ msg: "Please Login or Register" });
+        const accessToken = createAccessToken({ id: user._id });
+        res.json({ accessToken });
+      });
     } catch (err) {
       return res.status(500).json({ msg: err.message });
     }
@@ -33,7 +48,11 @@ const userCtrl = {
 };
 
 const createAccessToken = (user) => {
-  console.log(user);
+  return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "1d" });
+};
+
+const createRefreshToken = (user) => {
+  return jwt.sign(user, process.env.REFRESH_TOKEN_SECRET, { expiresIn: "7d" });
 };
 
 module.exports = userCtrl;
