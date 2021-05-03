@@ -20,14 +20,42 @@ const userCtrl = {
       // create Access token
       const accessToken = createAccessToken({ id: newUser._id });
       const refreshToken = createRefreshToken({ id: newUser._id });
-      console.log(accessToken);
-      console.log(refreshToken);
 
       res.cookie("refreshtoken", refreshToken, {
         httpOnly: true,
         path: "/user/refresh_token",
       });
       res.json({ accessToken });
+    } catch (err) {
+      return res.status(500).json({ msg: err.message });
+    }
+  },
+  login: async (req, res) => {
+    try {
+      const { email, password } = req.body;
+
+      const user = await Users.findOne({ email });
+      if (!user) return res.status(400).json({ msg: "User does not Exist" });
+
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (!isMatch) return res.status(400).json({ msg: "Incorrect password" });
+
+      const accessToken = createAccessToken({ id: user.id });
+      const refreshToken = createRefreshToken({ id: user.id });
+
+      res.cookie("refreshtoken", refreshToken, {
+        httpOnly: true,
+        path: "/user/refresh_token",
+      });
+      res.json({ accessToken });
+    } catch (err) {
+      return res.status(500).json({ msg: err.message });
+    }
+  },
+  logout: (req, res) => {
+    try {
+      res.clearCookie("refreshtoken", { path: "/user/refresh_token" });
+      res.json({ msg: "Logged out" });
     } catch (err) {
       return res.status(500).json({ msg: err.message });
     }
