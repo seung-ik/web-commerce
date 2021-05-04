@@ -73,6 +73,13 @@ const userCtrl = {
       return res.status(500).json({ msg: err.message });
     }
   },
+  getUser: async (req, res) => {
+    try {
+      res.json(req.user);
+    } catch (err) {
+      return res.status(500).json({ msg: err.message });
+    }
+  },
 };
 
 const createAccessToken = (user) => {
