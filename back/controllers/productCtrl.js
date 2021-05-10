@@ -9,6 +9,10 @@ class APIfeatures {
   filtering() {
     const queryObj = { ...this.queryString };
     console.log(queryObj);
+    const excludeFields = ["page", "sort", "limit"];
+    excludeFields.forEach((el) => delete queryObj[el]);
+    let queryStr = JSON.stringify(queryObj);
+    queryStr = queryStr.replace(/\b(gte|gt|lt|lte|regex)\b/g, (match) => "$" + match);
   }
   sorting() {}
   paginating() {}
