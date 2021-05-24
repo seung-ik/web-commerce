@@ -10,3 +10,24 @@ body {
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
 }
+.App {
+  margin: 0 auto;
+  padding: 0 20px;
+  box-shadow: 0 0 35px #eee;
+  max-width: 1230px;
+  min-height: 100vh;
+}
+a {
+  text-decoration: none;
+}
+ul li {
+  list-style-type: none;
+}
+button {
+  border: none;
+  outline: none;
+  background: transparent;
+  cursor: pointer;
+}
+/* Header css=-----------------  */
+@import url("./components/headers/header.css");
